@@ -37,10 +37,8 @@ public class Main {
                 System.out.println();
             }
         }
-
-
-
     }
+
 
     public static void printArray(String[][] array) {
         for (int i = 0; i < array.length; i++) {
@@ -51,9 +49,4 @@ public class Main {
         }
         System.out.println();
     }
-
-    public static void calculateWithoutError() {
-
-    }
-
 }
