@@ -12,27 +12,33 @@ package Lesson_2_Enum;
 public class DayOfWeekMain {
 
     public static enum DayOfWeek {
-        MONDAY(40),
-        TUESDAY(32),
-        WEDNESDAY(24),
-        THURSDAY(16),
-        FRIDAY(8),
-        SATURDAY(0),
-        SUNDAY(0);
+        MONDAY("Понедельник", 40),
+        TUESDAY("Вторник", 32),
+        WEDNESDAY("Среда", 24),
+        THURSDAY("Четверг", 16),
+        FRIDAY("Пятница", 8),
+        SATURDAY("Суббота", 0),
+        SUNDAY("Воскресенье", 0);
 
         int hours;
+        String russianName;
 
-        DayOfWeek(int hours) {
+        DayOfWeek(String rusianName, int hours) {
+            this.russianName = rusianName;
             this.hours = hours;
         }
 
         public int getWorkingHoursToEndOfWeek() {
             return hours;
         }
+        public String getRussianName() {
+            return russianName;
+        }
     }
 
     public static void main(final String[] args) {
         for (DayOfWeek day: DayOfWeek.values()) {
+            System.out.print("День недели " + day.getRussianName() + ". ");
             System.out.println(getWorkingHours(day));
         }
     }
