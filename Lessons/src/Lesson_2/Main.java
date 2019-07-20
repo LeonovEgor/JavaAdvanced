@@ -11,15 +11,20 @@ public class Main {
             {"1", "2", "4", "3"}, {"10", "20", "40", "30"}, {"100", "200", "400", "300"}, {"1000", "2000", "4000", "3000"}
         };
 
-        String[][] array2 = new String[][] { // во второй строке 3 элемента вместо 4х.
+        String[][] array2 = new String[][] { // Массив 3х4 вместо 4х4.
+                {"1", "2", "4", "3"}, {"100", "200", "400", "300"}, {"1000", "2000", "4000", "3000"}
+        };
+
+        String[][] array3 = new String[][] { // во второй строке 3 элемента вместо 4х.
                 {"1", "2", "4", "3"}, {"10", "20", "40" }, {"100", "200", "400", "300"}, {"1000", "2000", "4000", "3000"}
         };
 
-        String[][] array3 = new String[][] { // В ячейке [1][1] неверное значение
+        String[][] array4 = new String[][] { // В ячейке [1][1] неверное значение
                 {"1", "2", "4", "3"}, {"10", "dd", "40", "30"}, {"100", "200", "400", "300"}, {"1000", "2000", "4000", "3000"}
         };
 
-        String[][][] myArrays = new String[][][] {array1, array2, array3};
+        String[][][] myArrays = new String[][][] {array1, array2, array3, array4};
+
         for (String[][] array: myArrays) {
             printArray(array);
             try {
@@ -29,7 +34,7 @@ public class Main {
                 System.out.println();
             }
             catch (MyArraySizeException ex) {
-                System.out.println("Неверная длина массива: " + ex.getMessage());
+                System.out.println("Ошибка инициализации массива: " + ex.getMessage());
                 System.out.println();
             }
             catch (MyArrayDataException ex) {

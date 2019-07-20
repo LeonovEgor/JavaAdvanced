@@ -1,16 +1,31 @@
 package Lesson_2.MyExceptions;
 
 public class MyArraySizeException extends ArrayIndexOutOfBoundsException {
-    private int dimension;
-    private int input;
+    private String error;
 
     public MyArraySizeException(int dimension, int input) {
-        this.dimension = dimension;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Неверная длина массива. Задано ")
+                .append(input)
+                .append(". Требуется ")
+                .append(dimension);
+
+        error = sb.toString();
+    }
+    public MyArraySizeException(int dimension, int input, int row) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Неверный размер строки массива. В строке [")
+                .append(row)
+                .append("] размер ")
+                .append(input)
+                .append(". Требуется ")
+                .append(dimension);
+        error = sb.toString();
     }
 
     @Override
     public String getMessage() {
-        return "Размерность массива должна быть " + dimension + ". Переданное значение " + input;
+        return error;
 
     }
 }

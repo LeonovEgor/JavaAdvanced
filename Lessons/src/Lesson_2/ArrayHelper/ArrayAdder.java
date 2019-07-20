@@ -11,7 +11,7 @@ public class ArrayAdder {
         if (array.length != DIMENSION) throw new MyArraySizeException(DIMENSION, array.length);
 
         for (int i=0; i<array.length; i++) {
-            if (array[i].length != DIMENSION) throw new MyArraySizeException(DIMENSION, array.length);
+            if (array[i].length != DIMENSION) throw new MyArraySizeException(DIMENSION, array[i].length, i);
         }
 
         strArray = array;
