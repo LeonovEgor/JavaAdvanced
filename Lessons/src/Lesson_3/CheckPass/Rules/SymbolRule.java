@@ -1,4 +1,6 @@
-package Lesson_3.CheckPass;
+package Lesson_3.CheckPass.Rules;
+
+import Lesson_3.CheckPass.Rules.Rule;
 
 public class SymbolRule extends Rule {
 

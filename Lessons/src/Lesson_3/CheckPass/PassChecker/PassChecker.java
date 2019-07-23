@@ -1,18 +1,12 @@
-package Lesson_3.CheckPass;
+package Lesson_3.CheckPass.PassChecker;
+
+import Lesson_3.CheckPass.Rules.*;
 
 public class PassChecker {
-    public static boolean checkPass(String pass) {
+    private RuleCollection col = new RuleCollection();
+
+    public boolean checkPass(String pass) {
         boolean res = true;
-
-        RuleCollection col = new RuleCollection();
-
-        col.add(new LowerCaseRule());
-        col.add(new UpperCaseRule());
-        col.add(new DigitsRule());
-        col.add(new LengthRule(8, 20));
-        col.add(new SymbolRule());
-
-        System.out.println(String.format("Используемые паретны %s", col.toString()));
 
         for (Rule rule: col) {
             boolean curRes = rule.checkRule(pass);
@@ -23,5 +17,32 @@ public class PassChecker {
         }
 
         return res;
+    }
+
+    public void add(Patterns ... patterns) {
+        for (Patterns patern: patterns) {
+            switch (patern) {
+
+                case LOWER_CASE_RULE:
+                    col.add(new LowerCaseRule());
+                    break;
+                case UPPER_CASE_RULE:
+                    col.add(new UpperCaseRule());
+                    break;
+                case SYMBOL_RULE:
+                    col.add(new SymbolRule());
+                    break;
+                case DIGITS_RULE:
+                    col.add(new DigitsRule());
+                    break;
+                case LENGTH_RULE:
+                    col.add(new LengthRule(8, 20));
+                    break;
+            }
+        }
+    }
+
+    public String info() {
+        return String.format("Используемые правила %s", col.toString());
     }
 }

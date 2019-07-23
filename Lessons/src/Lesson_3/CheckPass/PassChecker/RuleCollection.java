@@ -1,12 +1,14 @@
-package Lesson_3.CheckPass;
+package Lesson_3.CheckPass.PassChecker;
+
+import Lesson_3.CheckPass.Rules.Rule;
 
 import java.util.HashSet;
 import java.util.Iterator;
 
 public class RuleCollection implements Iterable<Rule> {
-    HashSet<Rule> rules = new HashSet<>();
+    private HashSet<Rule> rules = new HashSet<>();
 
-    public void add(Rule rule) {
+    void add(Rule rule) {
         rules.add(rule);
     }
 

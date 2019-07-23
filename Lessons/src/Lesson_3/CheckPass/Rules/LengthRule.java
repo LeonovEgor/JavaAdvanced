@@ -1,4 +1,4 @@
-package Lesson_3.CheckPass;
+package Lesson_3.CheckPass.Rules;
 
 public class LengthRule extends Rule {
     private int min;
