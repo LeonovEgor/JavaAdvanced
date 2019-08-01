@@ -1,0 +1,26 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import java.net.URL?>
+
+<?scenebulder-stylesheet /css/Style.css?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.text.Text?>
+<VBox fx:controller="Lesson_6.Client.Chat.Controller" xmlns:fx="http://javafx.com/fxml"
+      alignment="center" >
+    <stylesheets><URL value="@/Lesson_6/Client/css/Style.css"/></stylesheets>
+    <HBox alignment="CENTER_LEFT" minHeight="90">
+        <ImageView preserveRatio="true">
+            <Image url="@../Media/logo.png"/>
+        </ImageView>
+    </HBox>
+    <TextArea fx:id="taHistory" editable="false" VBox.vgrow="ALWAYS"/>
+    <HBox >
+        <TextField fx:id="tfMessage" HBox.hgrow="ALWAYS" promptText="Введите сообщение"/>
+        <Button fx:id="btnSend" text="ОТПРАВИТЬ" onAction="#sendMessage" />
+    </HBox>
+</VBox >
