@@ -33,10 +33,11 @@ public class Client implements MessageSandable {
                 try {
                     while (true) {
                         String strFromServer = in.readUTF();
-                        if (strFromServer.equalsIgnoreCase("/end")) {
+                        registrator.fireAction(strFromServer);
+                        if (strFromServer.equalsIgnoreCase("/serverClosed")) {
+                            closeConnection();
                             break;
                         }
-                        registrator.fireAction(strFromServer);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

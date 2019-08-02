@@ -22,8 +22,8 @@ public class ChatServer {
 
             while (true) {
                 socket = serverSocket.accept();
-                System.out.println("Подключился клиент " + socket.toString());
-                clients.add(new ClientHandler(this, socket));
+
+                new ClientHandler(this, socket);
             }
 
         } catch (IOException e) {
@@ -47,5 +47,25 @@ public class ChatServer {
         for (ClientHandler o: clients) {
             o.sendMsg(msg);
         }
+    }
+
+    public void addClient(ClientHandler clientHandler) {
+        clients.add(clientHandler);
+        System.out.println("Подключился клиент " + clientHandler.getClientName());
+        System.out.println(String.format("В текущий момент клиентов %d: %s", clients.size(), getClientList()));
+    }
+
+    public void removeClient(ClientHandler clientHandler) {
+        clients.remove(clientHandler);
+        System.out.println("Отключился клиент " + clientHandler.getClientName());
+        System.out.println(String.format("Осталось клиентов %d: %s", clients.size(), getClientList()));
+    }
+
+    private String getClientList() {
+        StringBuilder sb = new StringBuilder();
+        for (ClientHandler handler: clients) {
+            sb.append(handler.getClientName()).append(", ");
+        }
+        return sb.toString();
     }
 }

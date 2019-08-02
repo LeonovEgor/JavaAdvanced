@@ -10,14 +10,17 @@ public class ClientHandler {
     private DataOutputStream out;
     private DataInputStream in;
     private ChatServer server;
+    private ClientHandler mySelf;
+
 
     public ClientHandler(ChatServer server, Socket socket) {
+        mySelf = this;
         try {
             this.socket = socket;
             this.server = server;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-
+            server.addClient(this);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -27,6 +30,7 @@ public class ClientHandler {
                             System.out.println("Client " + str);
                             if (str.equals("/end")) {
                                 out.writeUTF("/serverClosed");
+                                server.removeClient(mySelf);
                                 break;
                             }
                             server.broadcastMsg(str);
@@ -64,5 +68,9 @@ public class ClientHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getClientName() {
+        return socket != null ? socket.toString(): "Socket не создан!";
     }
 }
