@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Client {
+public class Client implements MessageSandable {
 
     private final String SERVER_ADDR = "localhost";
     private final int SERVER_PORT = 8189;
@@ -20,11 +20,6 @@ public class Client {
 
     public Client(ListenersRegistrator registrator) {
         this.registrator = registrator;
-        try {
-            openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void openConnection() throws IOException {
@@ -41,7 +36,7 @@ public class Client {
                         if (strFromServer.equalsIgnoreCase("/end")) {
                             break;
                         }
-                        registrator.fireAction(strFromServer + "\n");
+                        registrator.fireAction(strFromServer);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -72,6 +67,7 @@ public class Client {
 
         try {
             out.writeUTF(message);
+            out.flush();
             result = true;
         } catch (IOException e1) {
             e1.printStackTrace();

@@ -1,7 +1,10 @@
-package Lesson_6.Client.Chat;
+package Lesson_6.Client.FXUI;
 
 import Lesson_6.Client.Actions.MessageListener;
+import Lesson_6.Client.FXUtils.AlertHelper;
+import Lesson_6.Client.NET.MessageSandable;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -15,14 +18,24 @@ public class Controller implements MessageListener {
     @FXML
     Button btnSend;
 
-    public Controller() {
-
+    private MessageSandable sender;
+    public void setSender(MessageSandable sender) {
+        this.sender = sender;
     }
 
     public void sendMessage() {
-        taHistory.appendText(tfMessage.getText() + "\n");
-        tfMessage.clear();
-        tfMessage.requestFocus();
+        if (tfMessage.getText().trim().isEmpty()) return;
+
+        boolean res = sender.sendMessage(tfMessage.getText() + "\n");
+        if (!res) {
+            AlertHelper.ShowMessage(Alert.AlertType.WARNING,
+                    "Проблема", "Не удалось отправить сообщение");
+        }
+        else {
+            tfMessage.clear();
+            tfMessage.requestFocus();
+        }
+
     }
 
     @Override

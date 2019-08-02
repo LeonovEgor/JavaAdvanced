@@ -9,9 +9,9 @@ public class ClientHandler {
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
-    private Server server;
+    private ChatServer server;
 
-    public ClientHandler(Server server, Socket socket) {
+    public ClientHandler(ChatServer server, Socket socket) {
         try {
             this.socket = socket;
             this.server = server;

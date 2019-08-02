@@ -10,7 +10,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.text.Text?>
-<VBox fx:controller="Lesson_6.Client.Chat.Controller" xmlns:fx="http://javafx.com/fxml"
+<VBox fx:controller="Lesson_6.Client.FXUI.Controller" xmlns:fx="http://javafx.com/fxml"
       alignment="center" >
     <stylesheets><URL value="@/Lesson_6/Client/css/Style.css"/></stylesheets>
     <HBox alignment="CENTER_LEFT" minHeight="90">
