@@ -20,7 +20,7 @@
     </HBox>
     <TextArea fx:id="taHistory" editable="false" VBox.vgrow="ALWAYS"/>
     <HBox >
-        <TextField fx:id="tfMessage" HBox.hgrow="ALWAYS" promptText="Введите сообщение"/>
+        <TextField fx:id="tfMessage" HBox.hgrow="ALWAYS" promptText="Введите сообщение" onAction="#sendMessage"/>
         <Button fx:id="btnSend" text="ОТПРАВИТЬ" onAction="#sendMessage" />
     </HBox>
 </VBox >

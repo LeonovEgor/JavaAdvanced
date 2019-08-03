@@ -5,10 +5,12 @@ import Lesson_6.Client.Actions.MessageListener;
 import Lesson_6.Client.FXUI.Controller;
 import Lesson_6.Client.NET.Client;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
@@ -41,6 +43,18 @@ public class Main extends Application {
         ///////
 
         primaryStage.show();
+
+        // Предотвращение закрытия окна для выхода с оповещением сервера
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
+
+            @Override
+
+            public void handle(WindowEvent event) {
+                event.consume();
+                client.sendMessage("/end");
+            }
+
+        });
     }
 
 

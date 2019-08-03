@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
 
 public class ChatServer {
@@ -48,7 +50,7 @@ public class ChatServer {
 
     public void broadcastMsg(String msg) {
         for (ClientHandler handler: clients) {
-            handler.sendMsg(msg);
+            handler.sendMsg(String.format("%tT: %s", Calendar.getInstance(), msg));
         }
     }
 

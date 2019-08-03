@@ -4,7 +4,7 @@
 
 .text-area {
     -fx-text-fill: white;
-    -fx-font: 22px Arial, Helvetica, sans-serif;
+    -fx-font: 18px Arial, Helvetica, sans-serif;
 }
 
 .text-area .scroll-pane {
