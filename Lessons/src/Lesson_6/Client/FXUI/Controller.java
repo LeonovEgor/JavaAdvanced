@@ -42,7 +42,7 @@ public class Controller implements MessageListener {
 
     @Override
     public void performAction(String message) {
-        if (message.equals("/serverClosed")) {
+        if (message.equals("/end")) {
             System.out.println("Приложение закрывается");
             Platform.exit();
         }

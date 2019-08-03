@@ -15,9 +15,11 @@ public class ClientHandler {
 
     public ClientHandler(ChatServer server, Socket socket) {
         mySelf = this;
+        this.socket = socket;
+        this.server = server;
+        String socketName = socket.toString();
+
         try {
-            this.socket = socket;
-            this.server = server;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
             server.addClient(this);
@@ -27,10 +29,12 @@ public class ClientHandler {
                     try {
                         while (true) {
                             String str = in.readUTF();
-                            System.out.println("Client " + str);
+
+                            System.out.println(String.format("Client %s: %s", socketName, str));
                             if (str.equals("/end")) {
-                                out.writeUTF("/serverClosed");
+                                sendMsg(str);
                                 server.removeClient(mySelf);
+                                server.broadcastMsg(String.format("Клиент %s отключился", socketName));
                                 break;
                             }
                             server.broadcastMsg(str);
@@ -38,25 +42,30 @@ public class ClientHandler {
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            out.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        closeConnection();
+                        System.out.println(String.format("Соединение %s закрыто", socketName));
                     }
                 }
             }).start();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void closeConnection() {
+        try {
+            if (in != null) in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (out != null) out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (socket != null) socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

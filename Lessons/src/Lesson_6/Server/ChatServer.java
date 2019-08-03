@@ -25,27 +25,30 @@ public class ChatServer {
 
                 new ClientHandler(this, socket);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            closeServer();
+        }
+    }
 
-            try {
-                if (serverSocket != null) serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void closeServer() {
+        try {
+            if (socket != null) socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (serverSocket != null) serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public void broadcastMsg(String msg) {
-        for (ClientHandler o: clients) {
-            o.sendMsg(msg);
+        for (ClientHandler handler: clients) {
+            handler.sendMsg(msg);
         }
     }
 
