@@ -1,9 +1,8 @@
-package Lesson_6.Client;
+package Lesson_6_7.Client;
 
-import Lesson_6.Client.Actions.ListenersRegistrator;
-import Lesson_6.Client.Actions.MessageListener;
-import Lesson_6.Client.FXUI.Controller;
-import Lesson_6.Client.NET.Client;
+import Lesson_6_7.Client.Actions.ListenersRegistrator;
+import Lesson_6_7.Client.FXUI.Controller;
+import Lesson_6_7.Client.NET.Client;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -20,7 +19,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
 
-        loader = new FXMLLoader(getClass().getResource("/Lesson_6/Client/FXUI/chat.fxml"));
+        loader = new FXMLLoader(getClass().getResource("/Lesson_6_7/Client/FXUI/chat.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Simple Messenger");
         primaryStage.setScene(new Scene(root, 400, 600));
@@ -48,7 +47,6 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
 
             @Override
-
             public void handle(WindowEvent event) {
                 event.consume();
                 client.sendMessage("/end");

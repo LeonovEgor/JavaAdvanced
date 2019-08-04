@@ -1,4 +1,4 @@
-package Lesson_6.Client.FXUtils;
+package Lesson_6_7.Client.FXUtils;
 
 import javafx.scene.control.Alert;
 

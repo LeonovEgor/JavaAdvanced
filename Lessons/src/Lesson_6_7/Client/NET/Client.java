@@ -1,7 +1,6 @@
-package Lesson_6.Client.NET;
+package Lesson_6_7.Client.NET;
 
-import Lesson_6.Client.Actions.ListenersRegistrator;
-import Lesson_6.Client.Actions.MessageListener;
+import Lesson_6_7.Client.Actions.ListenersRegistrator;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

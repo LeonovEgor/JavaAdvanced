@@ -1,4 +1,4 @@
-package Lesson_6.Client.Actions;
+package Lesson_6_7.Client.Actions;
 
 import java.util.ArrayList;
 import java.util.List;
