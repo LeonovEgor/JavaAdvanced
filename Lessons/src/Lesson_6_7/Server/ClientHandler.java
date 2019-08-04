@@ -19,7 +19,7 @@ public class ClientHandler {
     private boolean isEnding = false;
 
     public String getNick() {
-        return nick;
+        return nick != null ? nick : "" ;
     };
 
     public ClientHandler(ChatServer server, Socket socket) {
@@ -31,7 +31,6 @@ public class ClientHandler {
         try {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-            server.addClient(this);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -62,20 +61,27 @@ public class ClientHandler {
                 break;
             }
 
-            ClientHandler privateHandler = checkForPrivateMessage(str);
-            if (privateHandler != null) server.sendPrivateMessage(privateHandler, nick, str);
-            else server.sendBroadcastMessage(nick, str);
+            if (isPrivateMessage(str)) {
+                ClientHandler privateHandler = server.consistClient(getPrivateName(str));
+                if (privateHandler != null) {
+                    String message = str.substring(str.indexOf(" ", 4), str.length());
+                    server.sendPrivateMessage(this, nick, message); // себе
+                    server.sendPrivateMessage(privateHandler, nick, message); // кому сообщение
+                }
+                else {
+                    server.sendPrivateMessage(this, nick, "Пользователь с таким ником не подключен"); // себе
+                }
+            }
+            else server.sendBroadcastMessage(nick, str); // всем
         }
     }
 
-    private ClientHandler checkForPrivateMessage(String str) {
-        ClientHandler result = null;
-        if (str.startsWith("/") && str.length() > 2) {
-            String privateName = str.substring(1, str.indexOf(" ", 1));
-            result = server.consistClient(privateName);
-        }
+    private String getPrivateName(String str) {
+        return str.substring(3, str.indexOf(" ", 3));
+    }
 
-        return result;
+    private boolean isPrivateMessage(String str) {
+        return (str.startsWith("/w") && str.length() > 4);
     }
 
     private void ending() {
@@ -106,9 +112,9 @@ public class ClientHandler {
                         continue;
                     }
 
-                    sendMsg(AUTH_OK);
                     nick = newNick;
                     server.addClient(ClientHandler.this);
+                    sendMsg(String.format("%s %s", AUTH_OK, nick) );
                     break;
                 } else {
                     sendMsg("Неверный логин или пароль!");

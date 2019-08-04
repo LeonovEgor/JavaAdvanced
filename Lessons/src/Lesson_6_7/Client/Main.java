@@ -1,9 +1,12 @@
 package Lesson_6_7.Client;
 
-import Lesson_6_7.Client.Actions.ListenersRegistrator;
+import Lesson_6_7.Client.Actions.AuthListener;
+import Lesson_6_7.Client.Actions.AuthListenersRegistrator;
+import Lesson_6_7.Client.Actions.MessageListenersRegistrator;
 import Lesson_6_7.Client.FXUI.Controller;
 import Lesson_6_7.Client.NET.Client;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,13 +16,15 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
-public class Main extends Application {
-    private static FXMLLoader loader;
+public class Main extends Application implements AuthListener {
+    private Client client;
+    private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        this.primaryStage = primaryStage;
 
-        loader = new FXMLLoader(getClass().getResource("/Lesson_6_7/Client/FXUI/chat.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Lesson_6_7/Client/FXUI/chat.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Simple Messenger");
         primaryStage.setScene(new Scene(root, 400, 600));
@@ -27,9 +32,10 @@ public class Main extends Application {
         primaryStage.setMinWidth(200);
 
         //////
-        ListenersRegistrator registrator = new ListenersRegistrator();
+        MessageListenersRegistrator messageListenersRegistrator = new MessageListenersRegistrator();
+        AuthListenersRegistrator authListenersRegistrator = new AuthListenersRegistrator();
 
-        Client client = new Client(registrator);
+        client = new Client(messageListenersRegistrator, authListenersRegistrator);
         try {
             client.openConnection();
         } catch (IOException e) {
@@ -37,8 +43,12 @@ public class Main extends Application {
         }
 
         Controller controller = loader.getController();
-        registrator.addListener(controller);
+        controller.setAuthorized(false);
+        messageListenersRegistrator.addListener(controller);
+        authListenersRegistrator.addListener(controller);
+        authListenersRegistrator.addListener(this);
         controller.setSender(client);
+
         ///////
 
         primaryStage.show();
@@ -58,5 +68,17 @@ public class Main extends Application {
 
     public static void main(String[] args) throws IOException {
         launch(args);
+    }
+
+    @Override
+    public void alPerformAction() {
+        //Platform.runLater((() -> primaryStage.setTitle("Simple Messenger - " + client.getNick())));
+        Platform.runLater(
+            new Runnable() {
+                @Override
+                public void run() {
+                    primaryStage.setTitle("Simple Messenger - " + client.getNick());
+                }
+            });
     }
 }

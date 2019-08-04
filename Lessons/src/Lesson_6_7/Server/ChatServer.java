@@ -58,7 +58,7 @@ public class ChatServer {
         }
     }
     public void sendPrivateMessage(ClientHandler handler, String fromNick, String message) {
-        handler.sendMsg(String.format("[%tT] %s: %s", Calendar.getInstance(), message));
+        handler.sendMsg(String.format("[%tT] %s: %s", Calendar.getInstance(), fromNick, message));
     }
 
 

@@ -9,17 +9,22 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.PasswordField?>
+
 <VBox fx:controller="Lesson_6_7.Client.FXUI.Controller" xmlns:fx="http://javafx.com/fxml"
       alignment="center" >
     <stylesheets><URL value="@/Lesson_6_7/Client/css/Style.css"/></stylesheets>
-    <HBox alignment="CENTER_LEFT" minHeight="90">
-        <ImageView preserveRatio="true">
+
+    <HBox fx:id="upperPanel" alignment="CENTER_LEFT" prefHeight="50" minHeight="50">
+        <ImageView preserveRatio="true" >
             <Image url="@../Media/logo.png"/>
         </ImageView>
+        <TextField VBox.vgrow="ALWAYS" promptText="Логин" fx:id="loginfield"/>
+        <PasswordField promptText="Пароль" fx:id="passwordfiled" onAction="#tryToAuth" />
+        <Button text="Авторизоваться" HBox.hgrow="ALWAYS" onAction="#tryToAuth"/>
     </HBox>
     <TextArea fx:id="taHistory" editable="false" VBox.vgrow="ALWAYS"/>
-    <HBox >
+    <HBox fx:id="bottomPanel">
         <TextField fx:id="tfMessage" HBox.hgrow="ALWAYS" promptText="Введите сообщение" onAction="#sendMessage"/>
         <Button fx:id="btnSend" text="ОТПРАВИТЬ" onAction="#sendMessage" />
     </HBox>
