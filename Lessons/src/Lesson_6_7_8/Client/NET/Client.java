@@ -1,12 +1,13 @@
-package Lesson_6_7.Client.NET;
+package Lesson_6_7_8.Client.NET;
 
-import Lesson_6_7.Client.Actions.AuthListenersRegistrator;
-import Lesson_6_7.Client.Actions.MessageListenersRegistrator;
+import Lesson_6_7_8.Client.Actions.AuthListenersRegistrator;
+import Lesson_6_7_8.Client.Actions.MessageListenersRegistrator;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 
 public class Client implements MessageSendable {
 
@@ -58,7 +59,7 @@ public class Client implements MessageSendable {
     private void waitForMessage() throws IOException {
         while (true) {
             String strFromServer = in.readUTF();
-            mlRegistrator.fireAction(strFromServer);
+            mlRegistrator.fireAction(new ChatMessage(new Date(), "Server", strFromServer, true));
             if (strFromServer.equalsIgnoreCase("/end")) {
                 closeConnection();
                 break;
@@ -76,7 +77,7 @@ public class Client implements MessageSendable {
                 alRegistrator.fireAction();
                 break;
             } else {
-                mlRegistrator.fireAction(str);
+                mlRegistrator.fireAction(new ChatMessage(new Date(), nick, str, true));
             }
         }
     }

@@ -1,4 +1,4 @@
-package Lesson_6_7.Client.NET;
+package Lesson_6_7_8.Client.NET;
 
 public interface MessageSendable {
     public boolean isAuthorized();

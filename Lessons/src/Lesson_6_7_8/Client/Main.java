@@ -1,10 +1,10 @@
-package Lesson_6_7.Client;
+package Lesson_6_7_8.Client;
 
-import Lesson_6_7.Client.Actions.AuthListener;
-import Lesson_6_7.Client.Actions.AuthListenersRegistrator;
-import Lesson_6_7.Client.Actions.MessageListenersRegistrator;
-import Lesson_6_7.Client.FXUI.Controller;
-import Lesson_6_7.Client.NET.Client;
+import Lesson_6_7_8.Client.Actions.AuthListener;
+import Lesson_6_7_8.Client.Actions.AuthListenersRegistrator;
+import Lesson_6_7_8.Client.Actions.MessageListenersRegistrator;
+import Lesson_6_7_8.Client.FXUI.Controller;
+import Lesson_6_7_8.Client.NET.Client;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -24,7 +24,7 @@ public class Main extends Application implements AuthListener {
     public void start(Stage primaryStage) throws Exception{
         this.primaryStage = primaryStage;
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Lesson_6_7/Client/FXUI/chat.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Lesson_6_7_8/Client/FXUI/chat.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Simple Messenger");
         primaryStage.setScene(new Scene(root, 400, 600));

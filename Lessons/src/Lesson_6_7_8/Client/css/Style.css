@@ -2,22 +2,40 @@
       -fx-background-color: #2f2f2f;
 }
 
-.text-area {
-    -fx-text-fill: white;
-    -fx-font: 18px Arial, Helvetica, sans-serif;
-}
-
-.text-area .scroll-pane {
-    -fx-background-color: transparent;
-}
-
-.text-area .scroll-pane .content {
-    -fx-background-color: transparent;
-}
-
-.text-area .scroll-pane .viewport {
+.list-view {
     -fx-background-image: url(../Media/background.JPG);
     -fx-background-size: 100% 100%;
+}
+
+.list-view .list-cell:even {
+    -fx-background-color: transparent;
+}
+.list-view .list-cell:odd {
+    -fx-background-color: transparent;
+}
+
+#vBoxCell {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+#lblNick {
+    -fx-font: 10px Tahoma, bold;
+    -fx-background-color: transparent;
+    -fx-text-fill: orange;
+}
+
+#lblTime {
+    -fx-font: 10px Tahoma;
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+#lblMessage {
+    -fx-font: 16px Tahoma;
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
 }
 
 .text-field {

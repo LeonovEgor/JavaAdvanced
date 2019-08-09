@@ -1,5 +1,7 @@
-package Lesson_6_7.Client.Actions;
+package Lesson_6_7_8.Client.Actions;
+
+import Lesson_6_7_8.Client.NET.ChatMessage;
 
 public interface MessageListener {
-    public void mlPerformAction(String message);
+    void mlPerformAction(ChatMessage message);
 }

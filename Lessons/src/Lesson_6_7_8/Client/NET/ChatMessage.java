@@ -1,8 +1,9 @@
-package Lesson_6_7_8.Client.FXUI;
+package Lesson_6_7_8.Client.NET;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class ChatMessage {
+public class ChatMessage implements Serializable {
 
     public ChatMessage(Date date, String nick, String message, boolean isMyMessage) {
         this.date = date;
