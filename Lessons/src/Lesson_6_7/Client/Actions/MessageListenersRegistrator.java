@@ -1,11 +1,11 @@
-package Lesson_6.Client.Actions;
+package Lesson_6_7.Client.Actions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListenersRegistrator {
+public class MessageListenersRegistrator {
 
-    private List listeners = new ArrayList();
+    private List<MessageListener> listeners = new ArrayList<>();
 
     public void addListener(MessageListener listener){
         this.listeners.add(listener);
@@ -16,9 +16,8 @@ public class ListenersRegistrator {
     }
 
     public void fireAction(String message){
-        for (Object listener1 : listeners) {
-            MessageListener listener = (MessageListener) listener1;
-            listener.performAction(message);
+        for (MessageListener listener : listeners) {
+            listener.mlPerformAction(message);
         }
     }
 }
