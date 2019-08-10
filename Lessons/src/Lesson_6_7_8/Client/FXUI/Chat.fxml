@@ -18,8 +18,8 @@
         <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true">
             <Image url="@../Media/logo.png" />
         </ImageView>
-        <TextField fx:id="loginfield" promptText="Логин" VBox.vgrow="ALWAYS" />
-        <PasswordField fx:id="passwordfiled" onAction="#tryToAuth" promptText="Пароль" />
+        <TextField fx:id="loginField" promptText="Логин" VBox.vgrow="ALWAYS" />
+        <PasswordField fx:id="passwordField" onAction="#tryToAuth" promptText="Пароль" />
         <Button onAction="#tryToAuth" text="Авторизоваться" HBox.hgrow="ALWAYS" />
     </HBox>
     <ListView fx:id="lvHistory" VBox.vgrow="ALWAYS" />

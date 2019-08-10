@@ -1,6 +1,6 @@
 package Lesson_6_7_8.Client.Actions;
 
-import Lesson_6_7_8.Client.NET.ChatMessage;
+import Lesson_6_7_8.Messages.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;

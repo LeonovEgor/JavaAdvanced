@@ -1,10 +1,13 @@
 package Lesson_6_7_8.Server;
 
+import Lesson_6_7_8.Messages.ChatMessage;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
 
 public class ChatServer {
@@ -52,23 +55,23 @@ public class ChatServer {
         }
     }
 
-    public void sendBroadcastMessage(String fromNick, String message) {
+    void sendBroadcastMessage(String fromNick, String message) {
         for (ClientHandler handler: clients) {
             sendPrivateMessage(handler, fromNick, message);
         }
     }
     public void sendPrivateMessage(ClientHandler handler, String fromNick, String message) {
-        handler.sendMsg(String.format("[%tT] %s: %s", Calendar.getInstance(), fromNick, message));
+        handler.sendMsg(new ChatMessage(new Date(), fromNick, message, false));
     }
 
 
-    public void addClient(ClientHandler clientHandler) {
+    void addClient(ClientHandler clientHandler) {
         clients.add(clientHandler);
         System.out.println("Подключился клиент " + clientHandler.info());
         System.out.println(String.format("В текущий момент клиентов %d: %s", clients.size(), getClientListText()));
     }
 
-    public void removeClient(ClientHandler clientHandler) {
+    void removeClient(ClientHandler clientHandler) {
         clients.remove(clientHandler);
         System.out.println("Отключился клиент " + clientHandler.info());
         System.out.println(String.format("Осталось клиентов %d: %s", clients.size(), getClientListText()));
@@ -82,7 +85,7 @@ public class ChatServer {
         return sb.toString();
     }
 
-    public boolean isAlreadyConnected(String nick) {
+    boolean isAlreadyConnected(String nick) {
         boolean result = false;
 
         for (ClientHandler handler: clients) {
@@ -94,7 +97,7 @@ public class ChatServer {
         return result;
     }
 
-    public ClientHandler consistClient(String privateName) {
+    ClientHandler consistClient(String privateName) {
         ClientHandler result = null;
         for (ClientHandler handler: clients) {
             if (handler.getNick().equals(privateName)) {

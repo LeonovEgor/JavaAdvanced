@@ -3,7 +3,7 @@ package Lesson_6_7_8.Client.FXUI;
 import Lesson_6_7_8.Client.Actions.AuthListener;
 import Lesson_6_7_8.Client.Actions.MessageListener;
 import Lesson_6_7_8.Client.FXUtils.AlertHelper;
-import Lesson_6_7_8.Client.NET.ChatMessage;
+import Lesson_6_7_8.Messages.ChatMessage;
 import Lesson_6_7_8.Client.NET.MessageSendable;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,8 +18,10 @@ public class Controller implements MessageListener, AuthListener, Initializable 
 
     @FXML
     ListView<ChatMessage> lvHistory;
+
     @FXML
     TextField tfMessage;
+
     @FXML
     Button btnSend;
 
@@ -30,10 +32,10 @@ public class Controller implements MessageListener, AuthListener, Initializable 
     HBox upperPanel;
 
     @FXML
-    TextField loginfield;
+    TextField loginField;
 
     @FXML
-    PasswordField passwordfiled;
+    PasswordField passwordField;
 
     private MessageSendable sender;
 
@@ -67,12 +69,11 @@ public class Controller implements MessageListener, AuthListener, Initializable 
             tfMessage.clear();
             tfMessage.requestFocus();
         }
-
     }
 
     public void tryToAuth() {
         if (!sender.isAuthorized())
-            sender.Auth(loginfield.getText(),passwordfiled.getText());
+            sender.Auth(loginField.getText(), passwordField.getText());
     }
 
     @Override
@@ -82,7 +83,9 @@ public class Controller implements MessageListener, AuthListener, Initializable 
             Platform.exit();
         }
         else {
-            lvHistory.getItems().add(message);
+            Platform.runLater(() -> {
+                lvHistory.getItems().add(message);
+            });
         }
     }
 

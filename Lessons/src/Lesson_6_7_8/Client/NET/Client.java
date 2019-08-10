@@ -2,10 +2,9 @@ package Lesson_6_7_8.Client.NET;
 
 import Lesson_6_7_8.Client.Actions.AuthListenersRegistrator;
 import Lesson_6_7_8.Client.Actions.MessageListenersRegistrator;
+import Lesson_6_7_8.Messages.ChatMessage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.Date;
 
@@ -16,12 +15,15 @@ public class Client implements MessageSendable {
     private final String AUTH_OK = "/authok";
 
     private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+
     private MessageListenersRegistrator mlRegistrator;
     private AuthListenersRegistrator alRegistrator;
+
     private boolean isAuthorized = false;
     private String nick;
+
     public String getNick() {
         return nick != null? nick: "";
     }
@@ -39,47 +41,19 @@ public class Client implements MessageSendable {
 
     public void openConnection() throws IOException {
         socket = new Socket(SERVER_ADDR, SERVER_PORT);
-        in = new DataInputStream(socket.getInputStream());
-        out = new DataOutputStream(socket.getOutputStream());
+        out = new ObjectOutputStream(socket.getOutputStream());
+        out.flush();
+        in = new ObjectInputStream(socket.getInputStream());
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    waitForAuthorizedMessage();
-                    waitForMessage();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
+        new Thread(() -> {
+            try {
+                waitForAuthorizedMessage();
+                waitForMessage();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }).start();
-    }
-
-    private void waitForMessage() throws IOException {
-        while (true) {
-            String strFromServer = in.readUTF();
-            mlRegistrator.fireAction(new ChatMessage(new Date(), "Server", strFromServer, true));
-            if (strFromServer.equalsIgnoreCase("/end")) {
-                closeConnection();
-                break;
-            }
-        }
-    }
-
-    private void waitForAuthorizedMessage() throws IOException {
-        while (true) {
-            String str = in.readUTF();
-
-            if (str.startsWith(AUTH_OK)) {
-                nick = str.substring(str.indexOf(" ", 1), str.length());
-                isAuthorized = true;
-                alRegistrator.fireAction();
-                break;
-            } else {
-                mlRegistrator.fireAction(new ChatMessage(new Date(), nick, str, true));
-            }
-        }
     }
 
     public void closeConnection() {
@@ -100,12 +74,56 @@ public class Client implements MessageSendable {
         }
     }
 
+    private void waitForAuthorizedMessage() throws IOException {
+        while (true) {
+            ChatMessage message;
+            try {
+                message = (ChatMessage) in.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                mlRegistrator.fireAction(new ChatMessage(new Date(),"Приложение",
+                        "Невозможно определить результат авторизации.", true));
+                continue;
+            }
+            if (message.getMessage().startsWith(AUTH_OK)) {
+                nick = message.getNickFrom();
+                isAuthorized = true;
+                alRegistrator.fireAction();
+                break;
+            } else {
+                mlRegistrator.fireAction(message);
+            }
+        }
+    }
+
+    private void waitForMessage() throws IOException {
+        while (true) {
+            ChatMessage message;
+
+            try {
+                message = (ChatMessage) in.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                mlRegistrator.fireAction(new ChatMessage(new Date(), "Приложение",
+                        "Поступило сообщение, которое не может быть разобрано.", true));
+                continue;
+            }
+
+            mlRegistrator.fireAction(message);
+            if (message.getMessage().equalsIgnoreCase("/end")) {
+                closeConnection();
+                break;
+            }
+        }
+    }
+
+
     @Override
     public boolean sendMessage(String message) {
         boolean result;
 
         try {
-            out.writeUTF(message);
+            out.writeObject(new ChatMessage(new Date(), this.nick, message, false));
             out.flush();
             result = true;
         } catch (IOException e1) {

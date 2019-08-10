@@ -1,20 +1,22 @@
-package Lesson_6_7_8.Client.NET;
+package Lesson_6_7_8.Messages;
 
 import java.io.Serializable;
 import java.util.Date;
 
 public class ChatMessage implements Serializable {
 
-    public ChatMessage(Date date, String nick, String message, boolean isMyMessage) {
+    public ChatMessage(Date date, String nickFrom, String nickTo, String message, boolean isMyMessage) {
         this.date = date;
-        this.nick = nick;
+        this.nickFrom = nickFrom;
+        this.nickTo = nickTo;
         this.message = message;
         this.isMyMessage = isMyMessage;
     }
 
     private boolean isMyMessage;
     private Date date;
-    private String nick;
+    private String nickFrom;
+    private String nickTo;
     private String message;
 
     public boolean isMyMessage() {
@@ -25,8 +27,12 @@ public class ChatMessage implements Serializable {
         return date;
     }
 
-    public String getNick() {
-        return nick;
+    public String getNickFrom() {
+        return nickFrom;
+    }
+
+    public String getNickTo() {
+        return nickTo;
     }
 
     public String getMessage() {

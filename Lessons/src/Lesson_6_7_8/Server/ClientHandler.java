@@ -1,10 +1,11 @@
 package Lesson_6_7_8.Server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import Lesson_6_7_8.Messages.ChatMessage;
+
+import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.Date;
 
 public class ClientHandler {
     private final String END = "/end";
@@ -12,8 +13,8 @@ public class ClientHandler {
     private final String AUTH = "/auth";
 
     private Socket socket;
-    private DataOutputStream out;
-    private DataInputStream in;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private ChatServer server;
     private String nick;
     private boolean isEnding = false;
@@ -29,20 +30,19 @@ public class ClientHandler {
 
 
         try {
-            this.in = new DataInputStream(socket.getInputStream());
-            this.out = new DataOutputStream(socket.getOutputStream());
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        waitForAuth();
-                        if (!isEnding) waitForMessage();
-                    } catch (IOException | SQLException e) {
-                        e.printStackTrace();
-                    } finally {
-                        closeConnection();
-                        System.out.println(String.format("Соединение  закрыто: %s", info()));
-                    }
+            this.in = new ObjectInputStream(socket.getInputStream());
+            this.out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+
+            new Thread(() -> {
+                try {
+                    waitForAuth();
+                    if (!isEnding) waitForMessage();
+                } catch (IOException | SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                } finally {
+                    closeConnection();
+                    System.out.println(String.format("Соединение  закрыто: %s", info()));
                 }
             }).start();
 
@@ -53,26 +53,32 @@ public class ClientHandler {
 
     private void waitForMessage() throws IOException {
         while (true) {
-            String str = in.readUTF();
-            System.out.println(String.format("Client %s: %s", info(), str));
+            ChatMessage message = null;
+            try {
+                message = (ChatMessage) in.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                System.out.println("Сообщение принято, но не может быть десериализовано.");
+                continue;
+            }
+            System.out.println(String.format("Client %s: %s ", info(), message.getMessage()));
 
-            if (str.equals(END)) {
+            if (message.getMessage().equals(END)) {
                 ending();
                 break;
             }
 
-            if (isPrivateMessage(str)) {
-                ClientHandler privateHandler = server.consistClient(getPrivateName(str));
+            if (isPrivateMessage(message.getMessage())) {
+                ClientHandler privateHandler = server.consistClient(getPrivateName(message.getMessage()));
                 if (privateHandler != null) {
-                    String message = str.substring(str.indexOf(" ", 4), str.length());
-                    server.sendPrivateMessage(this, nick, message); // себе
-                    server.sendPrivateMessage(privateHandler, nick, message); // кому сообщение
+                    server.sendPrivateMessage(this, nick, message.getMessage()); // себе
+                    server.sendPrivateMessage(privateHandler, nick, message.getMessage()); // кому сообщение
                 }
                 else {
                     server.sendPrivateMessage(this, nick, "Пользователь с таким ником не подключен"); // себе
                 }
             }
-            else server.sendBroadcastMessage(nick, str); // всем
+            else server.sendBroadcastMessage(nick, message.getMessage()); // всем
         }
     }
 
@@ -86,38 +92,39 @@ public class ClientHandler {
 
     private void ending() {
         isEnding = true;
-        sendMsg(END);
+        sendMsg(new ChatMessage(new Date(), nick, END, true));
         server.removeClient(ClientHandler.this);
         server.sendBroadcastMessage("Server", String.format("Клиент отключился: %s", info()));
     }
 
-    private void waitForAuth() throws IOException, SQLException {
+    private void waitForAuth() throws IOException, SQLException, ClassNotFoundException {
         while (true) {
-            String str = in.readUTF();
+            ChatMessage message = (ChatMessage) in.readObject();
 
-            if (str.equals(END)) {
+            if (message.getMessage().equals(END)) {
                 ending();
                 break;
             }
 
-            if (str.startsWith(AUTH)) {
-                String[] tokens = str.split(" ");
+            if (message.getMessage().startsWith(AUTH)) {
+                String[] tokens = message.getMessage().split(" ");
                 if (tokens.length != 3) continue;
 
                 String newNick = AuthService.getNickByLoginAndPass(tokens[1], tokens[2]);
                 if (newNick != null) {
 
                     if (server.isAlreadyConnected(newNick)) {
-                        sendMsg("Повторное подключение запрещено");
+                        sendMsg(new ChatMessage(new Date(), nick,
+                                "Повторное подключение запрещено", true));
                         continue;
                     }
 
                     nick = newNick;
                     server.addClient(ClientHandler.this);
-                    sendMsg(String.format("%s %s", AUTH_OK, nick) );
+                    sendMsg(new ChatMessage(new Date(), nick, String.format("%s %s", AUTH_OK, nick), true));
                     break;
                 } else {
-                    sendMsg("Неверный логин или пароль!");
+                    sendMsg(new ChatMessage(new Date(), nick, "Неверный логин или пароль!", true));
                 }
             }
         }
@@ -152,9 +159,9 @@ public class ClientHandler {
         }
     }
 
-    public void sendMsg(String msg) {
+    public void sendMsg(ChatMessage message) {
         try {
-            out.writeUTF(msg);
+            out.writeObject(message);
         } catch (IOException e) {
             e.printStackTrace();
         }

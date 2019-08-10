@@ -1,7 +1,7 @@
 package Lesson_6_7_8.Client.FXUI;
 
 
-import Lesson_6_7_8.Client.NET.ChatMessage;
+import Lesson_6_7_8.Messages.ChatMessage;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -55,7 +55,7 @@ public class ChatListViewCell extends ListCell<ChatMessage> {
 
             }
 
-            lblNick.setText(chatMessage.getNick());
+            lblNick.setText(chatMessage.getNickFrom());
             lblTime.setText(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(chatMessage.getDate()));
             lblMessage.setText(chatMessage.getMessage());
 
