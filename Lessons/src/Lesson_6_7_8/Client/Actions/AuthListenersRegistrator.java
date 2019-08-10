@@ -15,9 +15,9 @@ public class AuthListenersRegistrator {
         listeners.remove(listener);
     }
 
-    public void fireAction(){
+    public void fireAction(String nick){
         for (AuthListener listener : listeners) {
-            listener.alPerformAction();
+            listener.alPerformAction(nick);
         }
     }
 }

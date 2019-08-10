@@ -20,8 +20,8 @@
     -fx-background-radius: 5;
 }
 
-#lblNick {
-    -fx-font: 10px Tahoma, bold;
+#lblNickFrom, #lblNickTo {
+    -fx-font: 12px Tahoma, bold;
     -fx-background-color: transparent;
     -fx-text-fill: orange;
 }

@@ -5,6 +5,8 @@ import Lesson_6_7_8.Client.Actions.AuthListenersRegistrator;
 import Lesson_6_7_8.Client.Actions.MessageListenersRegistrator;
 import Lesson_6_7_8.Client.FXUI.Controller;
 import Lesson_6_7_8.Client.NET.Client;
+import Lesson_6_7_8.Messages.ChatMessage;
+import Lesson_6_7_8.Messages.MessageType;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -20,8 +22,15 @@ public class Main extends Application implements AuthListener {
     private static final int MIN_HEIGHT = 300;
     private static final int MIN_WIDTH = 200;
 
+    private final String SERVER_ADDR = "localhost";
+    private final int SERVER_PORT = 8189;
+
+
+
     private Client client;
     private Stage primaryStage;
+    private Controller controller;
+    private String nick;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -40,12 +49,12 @@ public class Main extends Application implements AuthListener {
 
         client = new Client(messageListenersRegistrator, authListenersRegistrator);
         try {
-            client.openConnection();
+            client.openConnection(SERVER_ADDR, SERVER_PORT);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Controller controller = loader.getController();
+        controller = loader.getController();
         controller.setAuthorized(false);
         messageListenersRegistrator.addListener(controller);
         authListenersRegistrator.addListener(controller);
@@ -59,7 +68,7 @@ public class Main extends Application implements AuthListener {
         // Предотвращение закрытия окна для выхода с оповещением сервера
         primaryStage.setOnCloseRequest(event -> {
             event.consume();
-            client.sendMessage("/end");
+            client.sendObject(new ChatMessage(MessageType.END, nick, ""));
         });
     }
 
@@ -69,7 +78,9 @@ public class Main extends Application implements AuthListener {
     }
 
     @Override
-    public void alPerformAction() {
-        Platform.runLater((() -> primaryStage.setTitle("Simple Messenger - " + client.getNick())));
+    public void alPerformAction(String nick) {
+        Platform.runLater((() -> primaryStage.setTitle("Simple Messenger - " + nick)));
+        this.nick = nick;
+        controller.setNick(nick);
     }
 }

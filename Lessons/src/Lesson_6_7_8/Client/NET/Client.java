@@ -3,16 +3,13 @@ package Lesson_6_7_8.Client.NET;
 import Lesson_6_7_8.Client.Actions.AuthListenersRegistrator;
 import Lesson_6_7_8.Client.Actions.MessageListenersRegistrator;
 import Lesson_6_7_8.Messages.ChatMessage;
+import Lesson_6_7_8.Messages.MessageType;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
 
 public class Client implements MessageSendable {
-
-    private final String SERVER_ADDR = "localhost";
-    private final int SERVER_PORT = 8189;
-    private final String AUTH_OK = "/authok";
 
     private Socket socket;
     private ObjectInputStream in;
@@ -28,7 +25,6 @@ public class Client implements MessageSendable {
         return nick != null? nick: "";
     }
 
-
     @Override
     public boolean isAuthorized() {
         return isAuthorized;
@@ -39,8 +35,8 @@ public class Client implements MessageSendable {
         this.alRegistrator = alRegistrator;
     }
 
-    public void openConnection() throws IOException {
-        socket = new Socket(SERVER_ADDR, SERVER_PORT);
+    public void openConnection(String serverAddr, int port) throws IOException {
+        socket = new Socket(serverAddr, port);
         out = new ObjectOutputStream(socket.getOutputStream());
         out.flush();
         in = new ObjectInputStream(socket.getInputStream());
@@ -56,7 +52,7 @@ public class Client implements MessageSendable {
         }).start();
     }
 
-    public void closeConnection() {
+    private void closeConnection() {
         try {
             in.close();
         } catch (IOException e) {
@@ -81,14 +77,14 @@ public class Client implements MessageSendable {
                 message = (ChatMessage) in.readObject();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-                mlRegistrator.fireAction(new ChatMessage(new Date(),"Приложение",
-                        "Невозможно определить результат авторизации.", true));
+                mlRegistrator.fireAction(new ChatMessage(MessageType.AUTH_ERROR, nick,
+                        "Невозможно определить результат авторизации."));
                 continue;
             }
-            if (message.getMessage().startsWith(AUTH_OK)) {
+            if (message.getMessageType().equals(MessageType.AUTH_OK)) {
                 nick = message.getNickFrom();
                 isAuthorized = true;
-                alRegistrator.fireAction();
+                alRegistrator.fireAction(nick);
                 break;
             } else {
                 mlRegistrator.fireAction(message);
@@ -104,39 +100,52 @@ public class Client implements MessageSendable {
                 message = (ChatMessage) in.readObject();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-                mlRegistrator.fireAction(new ChatMessage(new Date(), "Приложение",
-                        "Поступило сообщение, которое не может быть разобрано.", true));
+                mlRegistrator.fireAction(new ChatMessage(MessageType.ERROR_MESSAGE, nick,
+                        "Поступило сообщение, которое не может быть разобрано."));
                 continue;
             }
 
             mlRegistrator.fireAction(message);
-            if (message.getMessage().equalsIgnoreCase("/end")) {
+            if (message.getMessageType().equals(MessageType.END)) {
                 closeConnection();
                 break;
             }
         }
     }
 
-
-    @Override
-    public boolean sendMessage(String message) {
+    public boolean sendObject(ChatMessage message) {
         boolean result;
 
         try {
-            out.writeObject(new ChatMessage(new Date(), this.nick, message, false));
+            out.writeObject(message);
             out.flush();
             result = true;
         } catch (IOException e1) {
             e1.printStackTrace();
             result = false;
         }
-
         return result;
     }
 
     @Override
+    public boolean sendMessage(String text, String nickTo) {
+        ChatMessage message;
+
+        if (text.equals("/end")) {
+            message = new ChatMessage(MessageType.END, nick, "");
+        }
+        else {
+            message = nickTo.equals("") ?
+                    new ChatMessage(new Date(), this.nick, "", MessageType.BROADCAST_MESSAGE, text) :
+                    new ChatMessage(new Date(), this.nick, nickTo, MessageType.PRIVATE_MESSAGE, text);
+        }
+
+        return sendObject(message);
+    }
+
+    @Override
     public void Auth(String login, String pass) {
-        sendMessage(String.format("/auth %s %s",login, pass));
+        sendObject(new ChatMessage(login, pass));
     }
 
 }

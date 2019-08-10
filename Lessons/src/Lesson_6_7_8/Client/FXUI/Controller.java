@@ -5,6 +5,7 @@ import Lesson_6_7_8.Client.Actions.MessageListener;
 import Lesson_6_7_8.Client.FXUtils.AlertHelper;
 import Lesson_6_7_8.Messages.ChatMessage;
 import Lesson_6_7_8.Client.NET.MessageSendable;
+import Lesson_6_7_8.Messages.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -37,7 +38,13 @@ public class Controller implements MessageListener, AuthListener, Initializable 
     @FXML
     PasswordField passwordField;
 
+    public String nick;
+
     private MessageSendable sender;
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
 
     public void setAuthorized(boolean isAuthorized) {
         if (!isAuthorized) {
@@ -60,7 +67,15 @@ public class Controller implements MessageListener, AuthListener, Initializable 
     public void sendMessage() {
         if (tfMessage.getText().trim().isEmpty()) return;
 
-        boolean res = sender.sendMessage(tfMessage.getText());
+        String nickTo = "";
+        String text;
+        if (tfMessage.getText().startsWith("/w") && tfMessage.getText().length() > 4) {
+            String[] token = tfMessage.getText().split(" ", 3);
+            nickTo = token[1];
+            text = token[2];
+        } else text = tfMessage.getText();
+
+        boolean res = sender.sendMessage(text, nickTo);
         if (!res) {
             AlertHelper.ShowMessage(Alert.AlertType.WARNING,
                     "Проблема", "Не удалось отправить сообщение");
@@ -78,24 +93,22 @@ public class Controller implements MessageListener, AuthListener, Initializable 
 
     @Override
     public void mlPerformAction(ChatMessage message) {
-        if (message.getMessage().equals("/end")) {
+        if (message.getMessageType().equals(MessageType.END)) {
             System.out.println("Приложение закрывается");
             Platform.exit();
         }
         else {
-            Platform.runLater(() -> {
-                lvHistory.getItems().add(message);
-            });
+            Platform.runLater(() -> lvHistory.getItems().add(message));
         }
     }
 
     @Override
-    public void alPerformAction() {
+    public void alPerformAction(String nick) {
         setAuthorized(true);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        lvHistory.setCellFactory(chatListView -> new ChatListViewCell());
+        lvHistory.setCellFactory(chatListView -> new ChatListViewCell(nick));
     }
 }

@@ -1,6 +1,7 @@
 package Lesson_6_7_8.Server;
 
 import Lesson_6_7_8.Messages.ChatMessage;
+import Lesson_6_7_8.Messages.MessageType;
 
 import java.io.*;
 import java.net.Socket;
@@ -8,9 +9,6 @@ import java.sql.SQLException;
 import java.util.Date;
 
 public class ClientHandler {
-    private final String END = "/end";
-    private final String AUTH_OK = "/authok";
-    private final String AUTH = "/auth";
 
     private Socket socket;
     private ObjectOutputStream out;
@@ -27,7 +25,6 @@ public class ClientHandler {
         if (socket == null) throw new IllegalArgumentException("Socket не может быть null");
         this.socket = socket;
         this.server = server;
-
 
         try {
             this.in = new ObjectInputStream(socket.getInputStream());
@@ -53,7 +50,7 @@ public class ClientHandler {
 
     private void waitForMessage() throws IOException {
         while (true) {
-            ChatMessage message = null;
+            ChatMessage message;
             try {
                 message = (ChatMessage) in.readObject();
             } catch (ClassNotFoundException e) {
@@ -63,82 +60,59 @@ public class ClientHandler {
             }
             System.out.println(String.format("Client %s: %s ", info(), message.getMessage()));
 
-            if (message.getMessage().equals(END)) {
+            if (message.getMessageType().equals(MessageType.END)) {
                 ending();
                 break;
             }
-
-            if (isPrivateMessage(message.getMessage())) {
-                ClientHandler privateHandler = server.consistClient(getPrivateName(message.getMessage()));
-                if (privateHandler != null) {
-                    server.sendPrivateMessage(this, nick, message.getMessage()); // себе
-                    server.sendPrivateMessage(privateHandler, nick, message.getMessage()); // кому сообщение
-                }
-                else {
-                    server.sendPrivateMessage(this, nick, "Пользователь с таким ником не подключен"); // себе
-                }
-            }
-            else server.sendBroadcastMessage(nick, message.getMessage()); // всем
+            server.sendMessage(message);
         }
-    }
-
-    private String getPrivateName(String str) {
-        return str.substring(3, str.indexOf(" ", 3));
-    }
-
-    private boolean isPrivateMessage(String str) {
-        return (str.startsWith("/w") && str.length() > 4);
     }
 
     private void ending() {
         isEnding = true;
-        sendMsg(new ChatMessage(new Date(), nick, END, true));
+        sendObject(new ChatMessage(MessageType.END, nick, ""));
         server.removeClient(ClientHandler.this);
-        server.sendBroadcastMessage("Server", String.format("Клиент отключился: %s", info()));
+
+        // сообщить остальным
+        server.sendMessage(
+                new ChatMessage(
+                        MessageType.BROADCAST_MESSAGE,
+                        "Server",
+                        String.format("Отключился пользователь %s", nick)
+                )
+        );
     }
 
     private void waitForAuth() throws IOException, SQLException, ClassNotFoundException {
         while (true) {
             ChatMessage message = (ChatMessage) in.readObject();
 
-            if (message.getMessage().equals(END)) {
+            if (message.getMessageType().equals(MessageType.END)) {
                 ending();
                 break;
             }
 
-            if (message.getMessage().startsWith(AUTH)) {
-                String[] tokens = message.getMessage().split(" ");
-                if (tokens.length != 3) continue;
-
-                String newNick = AuthService.getNickByLoginAndPass(tokens[1], tokens[2]);
+            if (message.getMessageType().equals(MessageType.AUTH)) {
+                String newNick = AuthService.getNickByLoginAndPass(message.getLogin(), message.getPass());
                 if (newNick != null) {
-
                     if (server.isAlreadyConnected(newNick)) {
-                        sendMsg(new ChatMessage(new Date(), nick,
-                                "Повторное подключение запрещено", true));
+                        sendObject(new ChatMessage(MessageType.AUTH_ERROR,
+                                nick, "Повторное подключение запрещено"));
                         continue;
                     }
 
                     nick = newNick;
+                    server.sendMessage(new ChatMessage(MessageType.INFO_MESSAGE, nick,
+                            String.format("Подключился пользователь %s", nick))); // Всем, что клиент подключился
                     server.addClient(ClientHandler.this);
-                    sendMsg(new ChatMessage(new Date(), nick, String.format("%s %s", AUTH_OK, nick), true));
+                    sendObject(new ChatMessage(MessageType.AUTH_OK, nick, "")); // Клиенту о том, что все в порядке
                     break;
                 } else {
-                    sendMsg(new ChatMessage(new Date(), nick, "Неверный логин или пароль!", true));
+                    sendObject(new ChatMessage(MessageType.AUTH_ERROR,
+                            message.getLogin(), "Неверный логин или пароль"));
                 }
             }
         }
-    }
-
-    private boolean isAlreadyConnected(String nick) {
-        boolean result = false;
-        for (ClientHandler handler: server.getClients() ) {
-            if (handler.nick.equals(nick)) {
-                result = true;
-                break;
-            }
-        }
-        return result;
     }
 
     private void closeConnection() {
@@ -159,7 +133,7 @@ public class ClientHandler {
         }
     }
 
-    public void sendMsg(ChatMessage message) {
+    public void sendObject(ChatMessage message) {
         try {
             out.writeObject(message);
         } catch (IOException e) {

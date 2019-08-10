@@ -1,32 +1,27 @@
 package Lesson_6_7_8.Server;
 
 import Lesson_6_7_8.Messages.ChatMessage;
+import Lesson_6_7_8.Messages.MessageType;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
 public class ChatServer {
-    private final int PORT = 8189;
     private Vector<ClientHandler> clients;
 
-    public Vector<ClientHandler> getClients() {
-        return clients;
-    };
-
-    ServerSocket serverSocket = null;
+    private ServerSocket serverSocket = null;
     private Socket socket = null;
 
-    public ChatServer() throws SQLException {
+    public ChatServer(int port) throws SQLException {
         clients = new Vector<>();
 
         try {
             AuthService.connect();
-            serverSocket = new ServerSocket(PORT);
+            serverSocket = new ServerSocket(port);
             System.out.println("Сервер запущен, ожидаем подключения...");
 
             while (true) {
@@ -55,15 +50,29 @@ public class ChatServer {
         }
     }
 
-    void sendBroadcastMessage(String fromNick, String message) {
-        for (ClientHandler handler: clients) {
-            sendPrivateMessage(handler, fromNick, message);
+    public void sendMessage(ChatMessage message) {
+        switch (message.getMessageType()) {
+            case PRIVATE_MESSAGE:
+                ClientHandler handler = getClient(message.getNickTo());
+                if (handler != null) {
+                    handler.sendObject(message); // тому, кому назначено
+                    handler = getClient(message.getNickFrom());
+                    handler.sendObject(message); // себе
+                }
+                else {
+                    handler = getClient(message.getNickFrom());
+                    handler.sendObject(new ChatMessage(message.getDate(), message.getNickFrom(), message.getNickTo(),
+                            MessageType.ERROR_MESSAGE, "Пользователь с таким ником не подключен")); // себе
+                }
+                break;
+            case BROADCAST_MESSAGE:
+            case INFO_MESSAGE:
+                for (ClientHandler ch: clients) {
+                    ch.sendObject(message);
+                }
+                break;
         }
     }
-    public void sendPrivateMessage(ClientHandler handler, String fromNick, String message) {
-        handler.sendMsg(new ChatMessage(new Date(), fromNick, message, false));
-    }
-
 
     void addClient(ClientHandler clientHandler) {
         clients.add(clientHandler);
@@ -75,14 +84,6 @@ public class ChatServer {
         clients.remove(clientHandler);
         System.out.println("Отключился клиент " + clientHandler.info());
         System.out.println(String.format("Осталось клиентов %d: %s", clients.size(), getClientListText()));
-    }
-
-    private String getClientListText() {
-        StringBuilder sb = new StringBuilder();
-        for (ClientHandler handler: clients) {
-            sb.append(handler.info()).append(", ");
-        }
-        return sb.toString();
     }
 
     boolean isAlreadyConnected(String nick) {
@@ -97,7 +98,15 @@ public class ChatServer {
         return result;
     }
 
-    ClientHandler consistClient(String privateName) {
+    private String getClientListText() {
+        StringBuilder sb = new StringBuilder();
+        for (ClientHandler handler: clients) {
+            sb.append(handler.info()).append(", ");
+        }
+        return sb.toString();
+    }
+
+    private ClientHandler getClient(String privateName) {
         ClientHandler result = null;
         for (ClientHandler handler: clients) {
             if (handler.getNick().equals(privateName)) {
@@ -106,7 +115,5 @@ public class ChatServer {
             }
         }
         return result;
-
     }
-
 }
