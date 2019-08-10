@@ -30,15 +30,22 @@ public class ChatListViewCell extends ListCell<ChatMessage> {
     @FXML
     private HBox captionPanel;
 
-
     private FXMLLoader mLLoader;
 
+    //private final String nick;
+
+//    public ChatListViewCell(String nick) {
+//        this.nick = nick;
+//        this.lblNick.setText("");
+//        this.lblTime.setText("");
+//        this.lblMessage.setText("");
+//    }
+
     @Override
-    protected void updateItem(ChatMessage chatMessage, boolean empty) {
-        super.updateItem(chatMessage, empty);
+    protected void updateItem(ChatMessage message, boolean empty) {
+        super.updateItem(message, empty);
 
-        if(empty || chatMessage == null) {
-
+        if(empty || message == null) {
             setText(null);
             setGraphic(null);
 
@@ -52,17 +59,16 @@ public class ChatListViewCell extends ListCell<ChatMessage> {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
 
-            lblNick.setText(chatMessage.getNickFrom());
-            lblTime.setText(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(chatMessage.getDate()));
-            lblMessage.setText(chatMessage.getMessage());
+            lblNick.setText(message.getNickFrom());
+            lblTime.setText(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(message.getDate()));
+            lblMessage.setText(message.getMessage());
 
-            if (chatMessage.isMyMessage()) {
-                vBoxCell.setAlignment(Pos.CENTER_RIGHT);
-                captionPanel.setAlignment(Pos.CENTER_RIGHT);
-            }
+//            if (message.getNickFrom().equals(nick)) {
+//                vBoxCell.setAlignment(Pos.CENTER_RIGHT);
+//                captionPanel.setAlignment(Pos.CENTER_RIGHT);
+//            }
 
             setText(null);
             setGraphic(vBoxCell);
