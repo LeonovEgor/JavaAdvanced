@@ -128,24 +128,30 @@ public class Client implements MessageSendable {
     }
 
     @Override
-    public boolean sendMessage(String text, String nickTo) {
+    public boolean sendMessage(String text) {
         ChatMessage message;
 
-        if (text.equals("/end")) {
+        if (text.equals("/end")) { // конец
             message = new ChatMessage(MessageType.END, nick, "");
         }
-        else {
-            message = nickTo.equals("") ?
-                    new ChatMessage(new Date(), this.nick, "", MessageType.BROADCAST_MESSAGE, text) :
-                    new ChatMessage(new Date(), this.nick, nickTo, MessageType.PRIVATE_MESSAGE, text);
+        else if (text.startsWith("/blacklist")) { // добавление в черный список
+            String[] token = text.split(" ", 2);
+            message = new ChatMessage(new Date(), this.nick, token[1], MessageType.ADD_BLOCK, "");
+        }
+        else if (text.startsWith("/w") && text.length() > 4) { // приватное сообщение
+            String[] token = text.split(" ", 3);
+            message = new ChatMessage(new Date(), this.nick, token[1], MessageType.PRIVATE_MESSAGE, token[2]);
+        }
+        else { // broadcast
+            message = new ChatMessage(new Date(), this.nick, "", MessageType.BROADCAST_MESSAGE, text);
         }
 
         return sendObject(message);
     }
 
     @Override
-    public void Auth(String login, String pass) {
-        sendObject(new ChatMessage(login, pass));
+    public void Auth(String login, int passHash) {
+        sendObject(new ChatMessage(login, passHash));
     }
 
 }

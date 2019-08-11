@@ -86,7 +86,7 @@ public class ChatListViewCell extends ListCell<ChatMessage> {
             }
             else { // технические
                 vBoxCell.setAlignment(Pos.CENTER_RIGHT);
-                vBoxCell.setStyle("-fx-background-color: rgba(255, 0, 0, 0.3);");
+                vBoxCell.setStyle("-fx-background-color: rgba(0,157,253, 0.3);");
                 captionPanel.setAlignment(Pos.CENTER_RIGHT);
             }
 

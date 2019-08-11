@@ -11,7 +11,7 @@ public class ChatMessage implements Serializable {
     private String message;
     private MessageType messageType;
     private String login;
-    private String pass;
+    private int passHash;
 
     public ChatMessage(Date date, String nickFrom, String nickTo, MessageType messageType, String message) {
         this.date = date;
@@ -31,11 +31,11 @@ public class ChatMessage implements Serializable {
         this(new Date(), nick, nick, messageType, message);
     }
 
-    public ChatMessage(String login, String pass) {
+    public ChatMessage(String login, int passHash) {
         this.date = new Date();
         this.messageType = MessageType.AUTH;
         this.login = login;
-        this.pass = pass;
+        this.passHash = passHash;
     }
 
     public Date getDate() {
@@ -62,8 +62,8 @@ public class ChatMessage implements Serializable {
         return login;
     }
 
-    public String getPass() {
-        return pass;
+    public int getPassHash() {
+        return passHash;
     }
 }
 

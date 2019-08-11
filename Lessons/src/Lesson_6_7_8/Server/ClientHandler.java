@@ -2,11 +2,11 @@ package Lesson_6_7_8.Server;
 
 import Lesson_6_7_8.Messages.ChatMessage;
 import Lesson_6_7_8.Messages.MessageType;
+import Lesson_6_7_8.Server.DataBaseHelper.SQLHelper;
 
 import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.Date;
 
 public class ClientHandler {
 
@@ -64,8 +64,16 @@ public class ClientHandler {
                 ending();
                 break;
             }
+            if (message.getMessageType().equals(MessageType.ADD_BLOCK)){
+                blockng(message);
+                break;
+            }
             server.sendMessage(message);
         }
+    }
+
+    private void blockng(ChatMessage message) {
+        SQLHelper.AddBlock(message.getNickFrom(), message.getNickTo());
     }
 
     private void ending() {
@@ -76,7 +84,7 @@ public class ClientHandler {
         // сообщить остальным
         server.sendMessage(
                 new ChatMessage(
-                        MessageType.BROADCAST_MESSAGE,
+                        MessageType.INFO_MESSAGE,
                         "Server",
                         String.format("Отключился пользователь %s", nick)
                 )
@@ -93,7 +101,7 @@ public class ClientHandler {
             }
 
             if (message.getMessageType().equals(MessageType.AUTH)) {
-                String newNick = AuthService.getNickByLoginAndPass(message.getLogin(), message.getPass());
+                String newNick = SQLHelper.getNickByLoginAndPass(message.getLogin(), message.getPassHash());
                 if (newNick != null) {
                     if (server.isAlreadyConnected(newNick)) {
                         sendObject(new ChatMessage(MessageType.AUTH_ERROR,

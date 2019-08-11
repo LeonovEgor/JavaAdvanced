@@ -8,5 +8,6 @@ public enum MessageType {
     PRIVATE_MESSAGE, // Приватное сообщение
     BROADCAST_MESSAGE, // Сообщение всем
     ERROR_MESSAGE, // Ошибка при разборе сообщения
-    INFO_MESSAGE // Информационные сообщения
+    INFO_MESSAGE, // Информационные сообщения
+    ADD_BLOCK
 }

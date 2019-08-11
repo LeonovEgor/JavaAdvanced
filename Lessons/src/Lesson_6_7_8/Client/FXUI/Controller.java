@@ -67,15 +67,7 @@ public class Controller implements MessageListener, AuthListener, Initializable 
     public void sendMessage() {
         if (tfMessage.getText().trim().isEmpty()) return;
 
-        String nickTo = "";
-        String text;
-        if (tfMessage.getText().startsWith("/w") && tfMessage.getText().length() > 4) {
-            String[] token = tfMessage.getText().split(" ", 3);
-            nickTo = token[1];
-            text = token[2];
-        } else text = tfMessage.getText();
-
-        boolean res = sender.sendMessage(text, nickTo);
+        boolean res = sender.sendMessage(tfMessage.getText());
         if (!res) {
             AlertHelper.ShowMessage(Alert.AlertType.WARNING,
                     "Проблема", "Не удалось отправить сообщение");
@@ -88,7 +80,7 @@ public class Controller implements MessageListener, AuthListener, Initializable 
 
     public void tryToAuth() {
         if (!sender.isAuthorized())
-            sender.Auth(loginField.getText(), passwordField.getText());
+            sender.Auth(loginField.getText(), passwordField.getText().hashCode());
     }
 
     @Override
@@ -105,6 +97,7 @@ public class Controller implements MessageListener, AuthListener, Initializable 
     @Override
     public void alPerformAction(String nick) {
         setAuthorized(true);
+        lvHistory.setCellFactory(chatListView -> new ChatListViewCell(nick));
     }
 
     @Override

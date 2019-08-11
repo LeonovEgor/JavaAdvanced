@@ -2,12 +2,12 @@ package Lesson_6_7_8.Server;
 
 import Lesson_6_7_8.Messages.ChatMessage;
 import Lesson_6_7_8.Messages.MessageType;
+import Lesson_6_7_8.Server.DataBaseHelper.SQLHelper;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Vector;
 
 public class ChatServer {
@@ -20,7 +20,7 @@ public class ChatServer {
         clients = new Vector<>();
 
         try {
-            AuthService.connect();
+            SQLHelper.connect();
             serverSocket = new ServerSocket(port);
             System.out.println("Сервер запущен, ожидаем подключения...");
 
@@ -32,7 +32,7 @@ public class ChatServer {
             e.printStackTrace();
         } finally {
             closeServer();
-            AuthService.disconnect();
+            SQLHelper.disconnect();
         }
     }
 
@@ -55,7 +55,17 @@ public class ChatServer {
             case PRIVATE_MESSAGE:
                 ClientHandler handler = getClient(message.getNickTo());
                 if (handler != null) {
-                    handler.sendObject(message); // тому, кому назначено
+                    try {
+                        if (!SQLHelper.isBlockedUser(message.getNickTo(), message.getNickFrom()))
+                            handler.sendObject(message); // тому, кому назначено
+                        else {
+                            System.out.println(
+                                    String.format("%s не хочет видеть сообдения от %s. Сообщение не будет отправлено",
+                                            message.getNickTo(), message.getNickFrom()));
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                     handler = getClient(message.getNickFrom());
                     handler.sendObject(message); // себе
                 }
@@ -66,10 +76,26 @@ public class ChatServer {
                 }
                 break;
             case BROADCAST_MESSAGE:
+                for (ClientHandler ch: clients) {
+                    try {
+                        if (!SQLHelper.isBlockedUser(ch.getNick(), message.getNickFrom()))
+                            ch.sendObject(message);
+                        else {
+                            System.out.println(
+                                    String.format("%s не хочет видеть сообдения от %s. Сообщение не будет отправлено",
+                                            ch.getNick(), message.getNickFrom()));
+                        }
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
             case INFO_MESSAGE:
                 for (ClientHandler ch: clients) {
                     ch.sendObject(message);
                 }
+
                 break;
         }
     }
