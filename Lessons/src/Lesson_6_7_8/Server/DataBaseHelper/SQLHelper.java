@@ -17,6 +17,14 @@ public class SQLHelper {
         }
     }
 
+    public static void disconnect() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String getNickByLoginAndPass(String login, int passHash) throws SQLException {
 
         String qry = String.format("SELECT nickname FROM users where login = '%s' and password = %d", login, passHash);
@@ -29,22 +37,6 @@ public class SQLHelper {
         return null;
     }
 
-    public static boolean isBlockedUser(String nick, String checkedNick) throws SQLException {
-
-        int userId = getIdByNick(nick);
-        int checkedId = getIdByNick(checkedNick);
-
-        String qry = String.format(
-                "SELECT * FROM users " +
-                "JOIN BlackList ON users.id = BlackList.UserId " +
-                "WHERE users.id = %d AND BlackList.BlockedId = %d", userId, checkedId);
-        ResultSet rs = stmt.executeQuery(qry);
-
-        if (rs.next()) return true;
-
-        return false;
-    }
-
     private static int getIdByNick(String nick) throws SQLException {
 
         String qry = String.format("SELECT * FROM users WHERE nickname = '%s'", nick);
@@ -55,13 +47,18 @@ public class SQLHelper {
         return -1;
     }
 
+    public static boolean isBlockedUser(String nick, String checkedNick) throws SQLException {
 
-    public static void disconnect() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        int userId = getIdByNick(nick);
+        int checkedId = getIdByNick(checkedNick);
+
+        String qry = String.format(
+                "SELECT * FROM users " +
+                        "JOIN BlackList ON users.id = BlackList.UserId " +
+                        "WHERE users.id = %d AND BlackList.BlockedId = %d", userId, checkedId);
+        ResultSet rs = stmt.executeQuery(qry);
+
+        return rs.next();
     }
 
     public static void AddBlock(String nickFrom, String nickTo) {

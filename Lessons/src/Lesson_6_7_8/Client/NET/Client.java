@@ -15,24 +15,20 @@ public class Client implements MessageSendable {
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    private MessageListenersRegistrator mlRegistrator;
-    private AuthListenersRegistrator alRegistrator;
+    private MessageListenersRegistrator messageRegistrator;
+    private AuthListenersRegistrator authRegistrator;
 
     private boolean isAuthorized = false;
     private String nick;
-
-    public String getNick() {
-        return nick != null? nick: "";
-    }
 
     @Override
     public boolean isAuthorized() {
         return isAuthorized;
     }
 
-    public Client(MessageListenersRegistrator mlRegistrator, AuthListenersRegistrator alRegistrator) {
-        this.mlRegistrator = mlRegistrator;
-        this.alRegistrator = alRegistrator;
+    public Client(MessageListenersRegistrator messageRegistrator, AuthListenersRegistrator authRegistrator) {
+        this.messageRegistrator = messageRegistrator;
+        this.authRegistrator = authRegistrator;
     }
 
     public void openConnection(String serverAddr, int port) throws IOException {
@@ -77,17 +73,17 @@ public class Client implements MessageSendable {
                 message = (ChatMessage) in.readObject();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-                mlRegistrator.fireAction(new ChatMessage(MessageType.AUTH_ERROR, nick,
+                messageRegistrator.fireAction(new ChatMessage(MessageType.AUTH_ERROR, nick,
                         "Невозможно определить результат авторизации."));
                 continue;
             }
             if (message.getMessageType().equals(MessageType.AUTH_OK)) {
                 nick = message.getNickFrom();
                 isAuthorized = true;
-                alRegistrator.fireAction(nick);
+                authRegistrator.fireAction(nick);
                 break;
             } else {
-                mlRegistrator.fireAction(message);
+                messageRegistrator.fireAction(message);
             }
         }
     }
@@ -100,12 +96,12 @@ public class Client implements MessageSendable {
                 message = (ChatMessage) in.readObject();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-                mlRegistrator.fireAction(new ChatMessage(MessageType.ERROR_MESSAGE, nick,
+                messageRegistrator.fireAction(new ChatMessage(MessageType.ERROR_MESSAGE, nick,
                         "Поступило сообщение, которое не может быть разобрано."));
                 continue;
             }
 
-            mlRegistrator.fireAction(message);
+            messageRegistrator.fireAction(message);
             if (message.getMessageType().equals(MessageType.END)) {
                 closeConnection();
                 break;

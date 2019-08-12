@@ -1,4 +1,4 @@
-package Lesson_6_7_8.Server;
+package Lesson_6_7_8.Server.NET;
 
 import Lesson_6_7_8.Messages.ChatMessage;
 import Lesson_6_7_8.Messages.MessageType;
@@ -52,7 +52,7 @@ public class ChatServer {
 
     public void sendMessage(ChatMessage message) {
         switch (message.getMessageType()) {
-            case PRIVATE_MESSAGE:
+            case PRIVATE_MESSAGE: // личные сообщения
                 ClientHandler handler = getClient(message.getNickTo());
                 if (handler != null) {
                     try {
@@ -75,7 +75,7 @@ public class ChatServer {
                             MessageType.ERROR_MESSAGE, "Пользователь с таким ником не подключен")); // себе
                 }
                 break;
-            case BROADCAST_MESSAGE:
+            case BROADCAST_MESSAGE: // сообщения всем
                 for (ClientHandler ch: clients) {
                     try {
                         if (!SQLHelper.isBlockedUser(ch.getNick(), message.getNickFrom()))
@@ -91,7 +91,7 @@ public class ChatServer {
                     }
                 }
                 break;
-            case INFO_MESSAGE:
+            case INFO_MESSAGE: // сообщения от сервера (клиен подключился/отключился ...)
                 for (ClientHandler ch: clients) {
                     ch.sendObject(message);
                 }

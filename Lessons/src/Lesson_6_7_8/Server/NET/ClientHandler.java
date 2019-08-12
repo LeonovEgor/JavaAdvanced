@@ -1,4 +1,4 @@
-package Lesson_6_7_8.Server;
+package Lesson_6_7_8.Server.NET;
 
 import Lesson_6_7_8.Messages.ChatMessage;
 import Lesson_6_7_8.Messages.MessageType;

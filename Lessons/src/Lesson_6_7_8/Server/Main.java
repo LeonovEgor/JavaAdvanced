@@ -1,5 +1,7 @@
 package Lesson_6_7_8.Server;
 
+import Lesson_6_7_8.Server.NET.ChatServer;
+
 import java.sql.SQLException;
 
 public class Main {
