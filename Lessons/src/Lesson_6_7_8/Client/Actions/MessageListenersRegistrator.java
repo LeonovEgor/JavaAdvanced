@@ -1,4 +1,6 @@
-package Lesson_6_7.Client.Actions;
+package Lesson_6_7_8.Client.Actions;
+
+import Lesson_6_7_8.Messages.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,7 @@ public class MessageListenersRegistrator {
         listeners.remove(listener);
     }
 
-    public void fireAction(String message){
+    public void fireAction(ChatMessage message){
         for (MessageListener listener : listeners) {
             listener.mlPerformAction(message);
         }

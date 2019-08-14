@@ -1,20 +1,28 @@
-package Lesson_6_7.Client.FXUI;
+package Lesson_6_7_8.Client.FXUI;
 
-import Lesson_6_7.Client.Actions.AuthListener;
-import Lesson_6_7.Client.Actions.MessageListener;
-import Lesson_6_7.Client.FXUtils.AlertHelper;
-import Lesson_6_7.Client.NET.MessageSendable;
+import Lesson_6_7_8.Client.Actions.AuthListener;
+import Lesson_6_7_8.Client.Actions.MessageListener;
+import Lesson_6_7_8.Client.FXUtils.AlertHelper;
+import Lesson_6_7_8.Messages.ChatMessage;
+import Lesson_6_7_8.Client.NET.MessageSendable;
+import Lesson_6_7_8.Messages.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
-public class Controller implements MessageListener, AuthListener {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class Controller implements MessageListener, AuthListener, Initializable {
 
     @FXML
-    TextArea taHistory;
+    ListView<ChatMessage> lvHistory;
+
     @FXML
     TextField tfMessage;
+
     @FXML
     Button btnSend;
 
@@ -25,10 +33,18 @@ public class Controller implements MessageListener, AuthListener {
     HBox upperPanel;
 
     @FXML
-    TextField loginfield;
+    TextField loginField;
 
     @FXML
-    PasswordField passwordfiled;
+    PasswordField passwordField;
+
+    public String nick;
+
+    private MessageSendable sender;
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
 
     public void setAuthorized(boolean isAuthorized) {
         if (!isAuthorized) {
@@ -44,7 +60,6 @@ public class Controller implements MessageListener, AuthListener {
         }
     }
 
-    private MessageSendable sender;
     public void setSender(MessageSendable sender) {
         this.sender = sender;
     }
@@ -61,27 +76,32 @@ public class Controller implements MessageListener, AuthListener {
             tfMessage.clear();
             tfMessage.requestFocus();
         }
-
-    }
-
-    @Override
-    public void mlPerformAction(String message) {
-        if (message.equals("/end")) {
-            System.out.println("Приложение закрывается");
-            Platform.exit();
-        }
-        else {
-            taHistory.appendText(message + "\n");
-        }
     }
 
     public void tryToAuth() {
         if (!sender.isAuthorized())
-            sender.Auth(loginfield.getText(),passwordfiled.getText());
+            sender.Auth(loginField.getText(), passwordField.getText().hashCode());
     }
 
     @Override
-    public void alPerformAction() {
+    public void mlPerformAction(ChatMessage message) {
+        if (message.getMessageType().equals(MessageType.END)) {
+            System.out.println("Приложение закрывается");
+            Platform.exit();
+        }
+        else {
+            Platform.runLater(() -> lvHistory.getItems().add(message));
+        }
+    }
+
+    @Override
+    public void alPerformAction(String nick) {
         setAuthorized(true);
+        lvHistory.setCellFactory(chatListView -> new ChatListViewCell(nick));
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        lvHistory.setCellFactory(chatListView -> new ChatListViewCell(nick));
     }
 }
